@@ -1,54 +1,22 @@
-# Xcode
-DerivedData/
-build/
+# Created by https://www.toptal.com/developers/gitignore/api/xcode
+# Edit at https://www.toptal.com/developers/gitignore?templates=xcode
+
+### Xcode ###
+## User settings
 xcuserdata/
-*.xcuserstate
+
+## Xcode 8 and earlier
 *.xcscmblueprint
-
-# Swift Package Manager
-.build/
-Packages/
-Package.resolved
-
-# CocoaPods
-Pods/
-*.xcworkspace
-
-# Carthage
-Carthage/Build/
-
-# Fastlane
-fastlane/report.xml
-fastlane/Preview.html
-fastlane/screenshots/**/*.png
-fastlane/test_output/
-
-# Xcode project user data
-*.mode1v3
-*.mode2v3
-*.perspectivev3
-*.pbxuser
-
-# Archives
-*.ipa
-*.dSYM.zip
-*.dSYM
-
-# OS and IDE junk
-.DS_Store
-*.swp
-*.lock
-profile
-*.moved-aside
-*.xcuserdatad
-*.xcuserstate
-.idea/
-*.iml
-
-# Simulator device logs
 *.xccheckout
-*.xcdebugger
 
-# Swift Playground
-timeline.xctimeline
-playground.xcworkspace
+### Xcode Patch ###
+.DS_Store
+*.xcodeproj/*
+!*.xcodeproj/project.pbxproj
+!*.xcodeproj/xcshareddata/
+!*.xcodeproj/project.xcworkspace/
+!*.xcworkspace/contents.xcworkspacedata
+/*.gcno
+**/xcshareddata/WorkspaceSettings.xcsettings
+
+# End of https://www.toptal.com/developers/gitignore/api/xcode
