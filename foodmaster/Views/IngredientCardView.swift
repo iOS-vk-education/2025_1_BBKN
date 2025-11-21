@@ -4,7 +4,7 @@ struct IngredientCardView: View {
     let product: Product
     
     var body: some View {
-        HStack(spacing: 0){
+        HStack(spacing: 0) {
             Image("image_placeholder")
                 .resizable()
                 .frame(width: 139, height: 140)
@@ -16,8 +16,8 @@ struct IngredientCardView: View {
                         Color(Color(red: 66/255, green: 78/255, blue: 43/255))
                     ]), startPoint: .leading, endPoint: .trailing)
                 )
-            ZStack(alignment: .topTrailing){
-                HStack{
+            ZStack() {
+                HStack() {
                     VStack(alignment: .leading, spacing: 0){
                         Text(product.name)
                             .font(.title3)
@@ -27,7 +27,7 @@ struct IngredientCardView: View {
                         Rectangle()
                             .frame(height: 1)
                             .foregroundColor(Color(red: 229/255, green: 217/255, blue: 198/255))
-                        VStack(alignment: .leading, spacing: 0){
+                        VStack(alignment: .leading, spacing: 0) {
                             Text("\(product.calories) ккал")
                             Text("\(product.protein) г белка")
                             Text("\(product.fats) г жиров")
@@ -43,18 +43,17 @@ struct IngredientCardView: View {
                         Button {
                             print("Delete button tap") // TODO: Реализовать функционал кнопки удаления
                         } label: {
-                            ZStack{
-                                Circle()
-                                    .fill(Color(red: 90/255, green: 99/255, blue: 67/255))
-                                    .frame(width: 40, height: 40)
-                                Image(systemName: "trash")
-                                    .font(.system(size: 20))
-                                    .fontWeight(.bold)
-                                    .foregroundColor(Color(red: 229/255, green: 217/255, blue: 198/255))
-                            }
+                            Image(systemName: "trash")
+                                .font(.system(size: 20))
+                                .fontWeight(.bold)
+                                .foregroundColor(Color(red: 229/255, green: 217/255, blue: 198/255))
                         }
+                        .tint(Color(red: 229/255, green: 217/255, blue: 198/255, opacity: 0.15))
+                        .buttonStyle(.borderedProminent)
+                        .buttonBorderShape(.circle)
                         .padding(4)
-                        
+                        .padding(.vertical, 4)
+
                         Spacer()
                     }
                 }
@@ -66,8 +65,8 @@ struct IngredientCardView: View {
                         Text("\(product.weight) гр.")
                             .fontWeight(.bold)
                             .foregroundColor(Color(red: 229/255, green: 217/255, blue: 198/255))
-                            .padding(.horizontal, 18)
-                            .padding(.vertical, 8)
+                            .padding(.horizontal, 14)
+                            .padding(.vertical, 4)
                             .background(Color(red: 145/255, green: 137/255, blue: 76/255))
                     } // TODO: Сделать красивую угловую подпись граммовки, как на макете
                 }
@@ -82,5 +81,5 @@ struct IngredientCardView: View {
 }
 
 #Preview {
-    IngredientCardView(product: Product(name: "Рис отварной", calories: 100, protein: 100, fats: 100, carbs: 100, weight: 100))
+    IngredientCardView(product: Product(name: "Рис отварной", calories: 100, protein: 10, fats: 40, carbs: 50, weight: 100, imageUrl: nil))
 }
