@@ -1,6 +1,6 @@
 import Foundation
 
-struct Product: Identifiable{
+struct Product: Identifiable {
     let id = UUID()
     let name: String
     let calories: Int
