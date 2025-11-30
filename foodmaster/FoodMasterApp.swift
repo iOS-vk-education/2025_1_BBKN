@@ -4,6 +4,7 @@ import SwiftUI
 struct FoodMasterApp: App {
     var body: some Scene {
         WindowGroup {
+            CustomDishView()
         }
     }
 }
