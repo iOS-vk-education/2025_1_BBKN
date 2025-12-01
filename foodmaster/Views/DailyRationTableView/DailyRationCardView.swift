@@ -2,81 +2,15 @@ import UIKit
 
 final class DailyRationCardView: UIView {
     
-    // MARK: - Constants
-    
-    private enum Layout {
-        static let cardCornerRadius: CGFloat = 12
-        static let imageWidthMultiplier: CGFloat = 0.38
-        static let cardHeight: CGFloat = DesignSystem.Sizes.cardHeight
-        
-        static let buttonSize: CGFloat = 40
-        static let buttonCornerRadius: CGFloat = 20
-        static let buttonImageSize: CGFloat = 20
-        static let buttonTopOffset: CGFloat = 10
-        static let buttonTrailingOffset: CGFloat = -10
-        static let buttonSpacing: CGFloat = 8
-        
-        static let weightLabelCornerRadius: CGFloat = 16
-        static let weightLabelHeight: CGFloat = 32
-        static let weightLabelMinWidth: CGFloat = 60
-        static let weightLabelHorizontalPadding: CGFloat = 12
-        static let weightLabelBottomOffset: CGFloat = -8
-        static let weightLabelTrailingOffset: CGFloat = -8
-        
-        static let contentLeadingOffset: CGFloat = 12
-        static let contentTopOffset: CGFloat = 16
-        static let contentTrailingOffset: CGFloat = -10
-        
-        static let underlineHeight: CGFloat = 1
-        static let underlineTopOffset: CGFloat = 2
-        
-        static let macrosStackTopOffset: CGFloat = 8
-        static let macrosStackSpacing: CGFloat = 2
-        
-        static let titleTrailingOffset: CGFloat = -8
-    }
-    
-    private enum Colors {
-        static let cardBackground = UIColor(red: 66/255, green: 78/255, blue: 43/255, alpha: 1)
-        static let buttonBackground = UIColor(red: 90/255, green: 99/255, blue: 67/255, alpha: 1)
-        static let buttonTint = DesignSystem.Colors.background
-        static let weightLabelBackground = UIColor(red: 145/255, green: 137/255, blue: 76/255, alpha: 1)
-        static let weightLabelText = DesignSystem.Colors.background
-        static let titleText = DesignSystem.Colors.background
-        static let macroText = DesignSystem.Colors.background
-        static let underline = DesignSystem.Colors.background
-        
-        static let gradientColors: [CGColor] = [
-            UIColor.clear.cgColor,
-            UIColor(red: 66/255, green: 78/255, blue: 43/255, alpha: 0.2).cgColor,
-            UIColor(red: 66/255, green: 78/255, blue: 43/255, alpha: 1.0).cgColor
-        ]
-    }
-    
-    private enum Fonts {
-        static let title = UIFont.systemFont(ofSize: 20, weight: .bold)
-        static let macro = UIFont.systemFont(ofSize: 16, weight: .regular)
-        static let weight = UIFont.boldSystemFont(ofSize: 16)
-    }
-    
-    private enum Shadow {
-        static let color = UIColor.black
-        static let opacity: Float = 0.18
-        static let offset = CGSize(width: 0, height: 4)
-        static let radius: CGFloat = 4
-    }
-    
     // MARK: - UI Components
     
     private let cardContainerView: UIView = {
         let view = UIView()
-        view.backgroundColor = Colors.cardBackground
-        view.layer.cornerRadius = Layout.cardCornerRadius
+        view.backgroundColor = UIColor(red: 66/255, green: 78/255, blue: 43/255, alpha: 1) // card background
+        view.layer.cornerRadius = 12
         view.layer.masksToBounds = false
-        view.layer.shadowColor = Shadow.color.cgColor
-        view.layer.shadowOpacity = Shadow.opacity
-        view.layer.shadowOffset = Shadow.offset
-        view.layer.shadowRadius = Shadow.radius
+        // apply design shadow (closest centralized)
+        DesignSystem.Shadow.buttonShadow.apply(to: view.layer)
         return view
     }()
     
@@ -84,7 +18,7 @@ final class DailyRationCardView: UIView {
         let imageView = CustomImageView()
         imageView.contentMode = .scaleAspectFill
         imageView.clipsToBounds = true
-        imageView.layer.cornerRadius = Layout.cardCornerRadius
+        imageView.layer.cornerRadius = 12
         imageView.layer.maskedCorners = [.layerMinXMinYCorner, .layerMinXMaxYCorner]
         return imageView
     }()
@@ -105,7 +39,7 @@ final class DailyRationCardView: UIView {
     private let gradientOverlayView: UIView = {
         let view = UIView()
         view.isUserInteractionEnabled = false
-        view.layer.cornerRadius = Layout.cardCornerRadius
+        view.layer.cornerRadius = 12
         view.layer.maskedCorners = [.layerMinXMinYCorner, .layerMinXMaxYCorner]
         view.clipsToBounds = true
         return view
@@ -113,7 +47,11 @@ final class DailyRationCardView: UIView {
     
     private let gradientLayer: CAGradientLayer = {
         let layer = CAGradientLayer()
-        layer.colors = Colors.gradientColors
+        layer.colors = [
+            UIColor.clear.cgColor,
+            UIColor(red: 66/255, green: 78/255, blue: 43/255, alpha: 0.2).cgColor,
+            UIColor(red: 66/255, green: 78/255, blue: 43/255, alpha: 1.0).cgColor
+        ]
         layer.locations = [0.0, 0.72, 1.0]
         layer.startPoint = CGPoint(x: 0, y: 0.5)
         layer.endPoint = CGPoint(x: 1, y: 0.5)
@@ -127,15 +65,15 @@ final class DailyRationCardView: UIView {
     
     private let titleLabel: UILabel = {
         let label = UILabel()
-        label.font = Fonts.title
-        label.textColor = Colors.titleText
+        label.font = UIFont.systemFont(ofSize: 20, weight: .bold)
+        label.textColor = DesignColors.background
         label.numberOfLines = 2
         return label
     }()
     
     private let underlineView: UIView = {
         let view = UIView()
-        view.backgroundColor = Colors.underline
+        view.backgroundColor = DesignColors.background
         return view
     }()
     
@@ -143,7 +81,7 @@ final class DailyRationCardView: UIView {
         let stack = UIStackView()
         stack.axis = .vertical
         stack.alignment = .leading
-        stack.spacing = Layout.macrosStackSpacing
+        stack.spacing = 2
         return stack
     }()
     
@@ -160,11 +98,11 @@ final class DailyRationCardView: UIView {
     
     private let weightLabel: UILabel = {
         let label = UILabel()
-        label.font = Fonts.weight
-        label.textColor = Colors.weightLabelText
-        label.backgroundColor = Colors.weightLabelBackground
+        label.font = UIFont.boldSystemFont(ofSize: 16)
+        label.textColor = DesignColors.background
+        label.backgroundColor = UIColor(red: 145/255, green: 137/255, blue: 76/255, alpha: 1)
         label.textAlignment = .center
-        label.layer.cornerRadius = Layout.weightLabelCornerRadius
+        label.layer.cornerRadius = 16
         label.clipsToBounds = true
         return label
     }()
@@ -234,13 +172,13 @@ final class DailyRationCardView: UIView {
             cardContainerView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -DesignSystem.Spacing.medium),
             cardContainerView.topAnchor.constraint(equalTo: topAnchor, constant: -DesignSystem.Spacing.small),
             cardContainerView.bottomAnchor.constraint(equalTo: bottomAnchor),
-            cardContainerView.heightAnchor.constraint(equalToConstant: Layout.cardHeight),
+            cardContainerView.heightAnchor.constraint(equalToConstant: DesignSystem.Sizes.cardHeight),
             
             // Food Image
             foodImageView.leadingAnchor.constraint(equalTo: cardContainerView.leadingAnchor),
             foodImageView.topAnchor.constraint(equalTo: cardContainerView.topAnchor),
             foodImageView.bottomAnchor.constraint(equalTo: cardContainerView.bottomAnchor),
-            foodImageView.widthAnchor.constraint(equalTo: cardContainerView.widthAnchor, multiplier: Layout.imageWidthMultiplier),
+            foodImageView.widthAnchor.constraint(equalTo: cardContainerView.widthAnchor, multiplier: 0.38),
             
             // Content Container
             contentContainerView.leadingAnchor.constraint(equalTo: foodImageView.trailingAnchor),
@@ -249,37 +187,37 @@ final class DailyRationCardView: UIView {
             contentContainerView.trailingAnchor.constraint(equalTo: cardContainerView.trailingAnchor),
             
             // Delete Button
-            deleteButton.trailingAnchor.constraint(equalTo: contentContainerView.trailingAnchor, constant: Layout.buttonTrailingOffset),
-            deleteButton.topAnchor.constraint(equalTo: contentContainerView.topAnchor, constant: Layout.buttonTopOffset),
-            deleteButton.widthAnchor.constraint(equalToConstant: Layout.buttonSize),
-            deleteButton.heightAnchor.constraint(equalToConstant: Layout.buttonSize),
+            deleteButton.trailingAnchor.constraint(equalTo: contentContainerView.trailingAnchor, constant: -10),
+            deleteButton.topAnchor.constraint(equalTo: contentContainerView.topAnchor, constant: 10),
+            deleteButton.widthAnchor.constraint(equalToConstant: 40),
+            deleteButton.heightAnchor.constraint(equalToConstant: 40),
             
             // Edit Button
-            editButton.trailingAnchor.constraint(equalTo: contentContainerView.trailingAnchor, constant: Layout.buttonTrailingOffset),
-            editButton.topAnchor.constraint(equalTo: deleteButton.bottomAnchor, constant: Layout.buttonSpacing),
-            editButton.widthAnchor.constraint(equalToConstant: Layout.buttonSize),
-            editButton.heightAnchor.constraint(equalToConstant: Layout.buttonSize),
+            editButton.trailingAnchor.constraint(equalTo: contentContainerView.trailingAnchor, constant: -10),
+            editButton.topAnchor.constraint(equalTo: deleteButton.bottomAnchor, constant: 8),
+            editButton.widthAnchor.constraint(equalToConstant: 40),
+            editButton.heightAnchor.constraint(equalToConstant: 40),
             
             // Title
-            titleLabel.leadingAnchor.constraint(equalTo: contentContainerView.leadingAnchor, constant: Layout.contentLeadingOffset),
-            titleLabel.trailingAnchor.constraint(lessThanOrEqualTo: deleteButton.leadingAnchor, constant: Layout.titleTrailingOffset),
-            titleLabel.topAnchor.constraint(equalTo: contentContainerView.topAnchor, constant: Layout.contentTopOffset),
+            titleLabel.leadingAnchor.constraint(equalTo: contentContainerView.leadingAnchor, constant: 12),
+            titleLabel.trailingAnchor.constraint(lessThanOrEqualTo: deleteButton.leadingAnchor, constant: -8),
+            titleLabel.topAnchor.constraint(equalTo: contentContainerView.topAnchor, constant: 16),
             
             // Underline
-            underlineView.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: Layout.underlineTopOffset),
+            underlineView.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 2),
             underlineView.leadingAnchor.constraint(equalTo: titleLabel.leadingAnchor),
             underlineView.widthAnchor.constraint(equalTo: titleLabel.widthAnchor),
-            underlineView.heightAnchor.constraint(equalToConstant: Layout.underlineHeight),
+            underlineView.heightAnchor.constraint(equalToConstant: 1),
             
             // Macros Stack
-            macrosStackView.topAnchor.constraint(equalTo: underlineView.bottomAnchor, constant: Layout.macrosStackTopOffset),
-            macrosStackView.leadingAnchor.constraint(equalTo: contentContainerView.leadingAnchor, constant: Layout.contentLeadingOffset),
-            macrosStackView.trailingAnchor.constraint(lessThanOrEqualTo: contentContainerView.trailingAnchor, constant: Layout.contentTrailingOffset),
+            macrosStackView.topAnchor.constraint(equalTo: underlineView.bottomAnchor, constant: 8),
+            macrosStackView.leadingAnchor.constraint(equalTo: contentContainerView.leadingAnchor, constant: 12),
+            macrosStackView.trailingAnchor.constraint(lessThanOrEqualTo: contentContainerView.trailingAnchor, constant: -10),
             
             // Weight Label
-            weightLabel.trailingAnchor.constraint(equalTo: contentContainerView.trailingAnchor, constant: Layout.weightLabelTrailingOffset),
-            weightLabel.bottomAnchor.constraint(equalTo: contentContainerView.bottomAnchor, constant: Layout.weightLabelBottomOffset),
-            weightLabel.heightAnchor.constraint(equalToConstant: Layout.weightLabelHeight)
+            weightLabel.trailingAnchor.constraint(equalTo: contentContainerView.trailingAnchor, constant: -8),
+            weightLabel.bottomAnchor.constraint(equalTo: contentContainerView.bottomAnchor, constant: -8),
+            weightLabel.heightAnchor.constraint(equalToConstant: 32)
         ])
     }
     
@@ -289,7 +227,7 @@ final class DailyRationCardView: UIView {
     
     private func setupBoundsObserver() {
         if let customImageView = foodImageView as? CustomImageView {
-            customImageView.onBoundsChange = { [weak self] newBounds in
+            customImageView.onBoundsChange = { [weak self] _ in
                 self?.updateGradientFrame()
             }
         }
@@ -308,12 +246,12 @@ final class DailyRationCardView: UIView {
     
     private func createCircleButton(systemName: String) -> UIButton {
         let button = UIButton(type: .system)
-        button.backgroundColor = Colors.buttonBackground
-        button.tintColor = Colors.buttonTint
-        button.layer.cornerRadius = Layout.buttonCornerRadius
+        button.backgroundColor = UIColor(red: 90/255, green: 99/255, blue: 67/255, alpha: 1)
+        button.tintColor = DesignColors.background
+        button.layer.cornerRadius = 20
         button.clipsToBounds = true
         
-        let symbolConfig = UIImage.SymbolConfiguration(pointSize: Layout.buttonImageSize, weight: .bold)
+        let symbolConfig = UIImage.SymbolConfiguration(pointSize: 20, weight: .bold)
         let image = UIImage(systemName: systemName)?.withConfiguration(symbolConfig)
         button.setImage(image, for: .normal)
         
@@ -322,8 +260,8 @@ final class DailyRationCardView: UIView {
     
     private func createMacroLabel(text: String) -> UILabel {
         let label = UILabel()
-        label.font = Fonts.macro
-        label.textColor = Colors.macroText
+        label.font = UIFont.systemFont(ofSize: 16, weight: .regular)
+        label.textColor = DesignColors.background
         label.text = text
         return label
     }
@@ -363,8 +301,11 @@ final class DailyRationCardView: UIView {
         weightLabel.text = " \(weight) гр. "
         weightLabel.sizeToFit()
         
-        let calculatedWidth = weightLabel.frame.width + (Layout.weightLabelHorizontalPadding * 2)
-        let finalWidth = max(calculatedWidth, Layout.weightLabelMinWidth)
+        let horizontalPadding: CGFloat = 12
+        let minWidth: CGFloat = 60
+        
+        let calculatedWidth = weightLabel.frame.width + (horizontalPadding * 2)
+        let finalWidth = max(calculatedWidth, minWidth)
         
         weightLabel.widthAnchor.constraint(equalToConstant: finalWidth).isActive = true
     }

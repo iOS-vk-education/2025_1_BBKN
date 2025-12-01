@@ -1,20 +1,105 @@
 import UIKit
 
+public struct CircularMacrosChartViewParameters {
+    public let calories: Int
+    public let caloriesGoal: Int
+    public let fats: Int
+    public let carbs: Int
+    public let proteins: Int
+    public let fatsGoal: Int
+    public let carbsGoal: Int
+    public let proteinsGoal: Int
+
+    public init(
+        calories: Int = 2500,
+        caloriesGoal: Int = 2500,
+        fats: Int = 150,
+        carbs: Int = 150,
+        proteins: Int = 150,
+        fatsGoal: Int = 150,
+        carbsGoal: Int = 150,
+        proteinsGoal: Int = 150
+    ) {
+        self.calories = calories
+        self.caloriesGoal = caloriesGoal
+        self.fats = fats
+        self.carbs = carbs
+        self.proteins = proteins
+        self.fatsGoal = fatsGoal
+        self.carbsGoal = carbsGoal
+        self.proteinsGoal = proteinsGoal
+    }
+}
+
 final class CircularMacrosChartView: UIView {
-    var calories: Int = 2500 {
-        didSet { setNeedsDisplay() }
+    var calories: Int { didSet { setNeedsDisplay() } }
+    var caloriesGoal: Int { didSet { setNeedsDisplay() } }
+    var fats: Int { didSet { setNeedsDisplay() } }
+    var carbs: Int { didSet { setNeedsDisplay() } }
+    var proteins: Int { didSet { setNeedsDisplay() } }
+
+    // Цели для макросов
+    var fatsGoal: Int { didSet { setNeedsDisplay() } }
+    var carbsGoal: Int { didSet { setNeedsDisplay() } }
+    var proteinsGoal: Int { didSet { setNeedsDisplay() } }
+
+    // Колбэк на тап по диаграмме
+    var onTap: (() -> Void)?
+
+    // MARK: - Init
+
+    convenience init(parameters: CircularMacrosChartViewParameters) {
+        self.init(frame: .zero)
+        self.calories = parameters.calories
+        self.caloriesGoal = parameters.caloriesGoal
+        self.fats = parameters.fats
+        self.carbs = parameters.carbs
+        self.proteins = parameters.proteins
+        self.fatsGoal = parameters.fatsGoal
+        self.carbsGoal = parameters.carbsGoal
+        self.proteinsGoal = parameters.proteinsGoal
     }
-    var caloriesGoal: Int = 2500 {
-        didSet { setNeedsDisplay() }
+
+    override init(frame: CGRect) {
+        self.calories = 2500
+        self.caloriesGoal = 2500
+        self.fats = 150
+        self.carbs = 150
+        self.proteins = 150
+        self.fatsGoal = 150
+        self.carbsGoal = 150
+        self.proteinsGoal = 150
+        super.init(frame: frame)
+        backgroundColor = .clear
+        isOpaque = false
+        contentMode = .redraw
+        setupGesture()
     }
-    var fats: Int = 150 {
-        didSet { setNeedsDisplay() }
+
+    required init?(coder: NSCoder) {
+        self.calories = 2500
+        self.caloriesGoal = 2500
+        self.fats = 150
+        self.carbs = 150
+        self.proteins = 150
+        self.fatsGoal = 150
+        self.carbsGoal = 150
+        self.proteinsGoal = 150
+        super.init(coder: coder)
+        backgroundColor = .clear
+        isOpaque = false
+        contentMode = .redraw
+        setupGesture()
     }
-    var carbs: Int = 150 {
-        didSet { setNeedsDisplay() }
+
+    private func setupGesture() {
+        let tap = UITapGestureRecognizer(target: self, action: #selector(handleTap))
+        addGestureRecognizer(tap)
+        isUserInteractionEnabled = true
     }
-    var proteins: Int = 150 {
-        didSet { setNeedsDisplay() }
+
+    @objc private func handleTap() {
+        onTap?()
     }
 
     override func draw(_ rect: CGRect) {
@@ -29,32 +114,85 @@ final class CircularMacrosChartView: UIView {
         drawMacroLabels(rect: rect, center: center)
     }
     
-    private func drawMainArc(context: CGContext, center: CGPoint, radius: CGFloat) {
-        context.setLineWidth(ChartConfiguration.Arc.mainWidth)
-        context.setStrokeColor(DesignSystem.Colors.chartOrange.cgColor)
-        context.addArc(
-            center: center,
-            radius: radius - ChartConfiguration.Arc.mainWidth / 2,
-            startAngle: ChartConfiguration.Arc.startAngle,
-            endAngle: ChartConfiguration.Arc.endAngle,
-            clockwise: false
-        )
+    // MARK: - Drawing helpers
+
+    private func drawArc(context: CGContext,
+                         center: CGPoint,
+                         radius: CGFloat,
+                         width: CGFloat,
+                         color: UIColor,
+                         startAngle: CGFloat,
+                         endAngle: CGFloat) {
+        context.setLineWidth(width)
+        context.setStrokeColor(color.cgColor)
+        context.addArc(center: center,
+                       radius: radius,
+                       startAngle: startAngle,
+                       endAngle: endAngle,
+                       clockwise: false)
         context.strokePath()
+    }
+
+    private func clampedProgress(numerator: Int, denominator: Int) -> CGFloat {
+        guard denominator > 0 else { return 0 }
+        let value = CGFloat(numerator) / CGFloat(denominator)
+        return max(0, min(1, value))
+    }
+    
+    private func drawMainArc(context: CGContext, center: CGPoint, radius: CGFloat) {
+        let baseRadius = radius - ChartConfiguration.Arc.mainWidth / 2
+        // 1) Базовая дуга (фон)
+        drawArc(context: context,
+                center: center,
+                radius: baseRadius,
+                width: ChartConfiguration.Arc.mainWidth,
+                color: DesignColors.chartCaloriesBase,
+                startAngle: ChartConfiguration.Arc.startAngle,
+                endAngle: ChartConfiguration.Arc.endAngle)
+
+        // 2) Прогресс калорий
+        let progress = clampedProgress(numerator: calories, denominator: caloriesGoal)
+        let sweep = (ChartConfiguration.Arc.endAngle - ChartConfiguration.Arc.startAngle) * progress
+        drawArc(context: context,
+                center: center,
+                radius: baseRadius,
+                width: ChartConfiguration.Arc.mainWidth,
+                color: DesignColors.chartOrange,
+                startAngle: ChartConfiguration.Arc.startAngle,
+                endAngle: ChartConfiguration.Arc.startAngle + sweep)
     }
     
     private func drawMacroArcs(context: CGContext, center: CGPoint, radius: CGFloat) {
-        for (index, color) in ChartConfiguration.Macro.colors.enumerated() {
+        // Порядок: [белки, жиры, углеводы]
+        let macroValues: [(value: Int, goal: Int, baseColor: UIColor, progressColor: UIColor)] = [
+            (proteins, proteinsGoal, DesignColors.proteinsBase, DesignColors.macroRed),
+            (fats, fatsGoal, DesignColors.fatsBase, DesignColors.macroGreen),
+            (carbs, carbsGoal, DesignColors.carbsBase, DesignColors.macroBlue)
+        ]
+
+        for (index, macro) in macroValues.enumerated() {
             let macroRadius = radius - ChartConfiguration.Macro.offsetFromMain[index]
-            context.setLineWidth(ChartConfiguration.Arc.macroWidth)
-            context.setStrokeColor(color.cgColor)
-            context.addArc(
-                center: center,
-                radius: macroRadius,
-                startAngle: ChartConfiguration.Arc.startAngle,
-                endAngle: ChartConfiguration.Arc.endAngle,
-                clockwise: false
-            )
-            context.strokePath()
+            let r = macroRadius
+
+            // 1) Базовая дуга (фон)
+            drawArc(context: context,
+                    center: center,
+                    radius: r,
+                    width: ChartConfiguration.Arc.macroWidth,
+                    color: macro.baseColor,
+                    startAngle: ChartConfiguration.Arc.startAngle,
+                    endAngle: ChartConfiguration.Arc.endAngle)
+
+            // 2) Прогрессовая дуга
+            let progress = clampedProgress(numerator: macro.value, denominator: macro.goal)
+            let sweep = (ChartConfiguration.Arc.endAngle - ChartConfiguration.Arc.startAngle) * progress
+            drawArc(context: context,
+                    center: center,
+                    radius: r,
+                    width: ChartConfiguration.Arc.macroWidth,
+                    color: macro.progressColor,
+                    startAngle: ChartConfiguration.Arc.startAngle,
+                    endAngle: ChartConfiguration.Arc.startAngle + sweep)
         }
     }
     
@@ -75,8 +213,8 @@ final class CircularMacrosChartView: UIView {
             
             let attributedString = NSAttributedString.create(
                 text: "\(value)",
-                font: DesignSystem.Fonts.chartLabel,
-                color: DesignSystem.Colors.primaryText
+                font: DesignFonts.chartLabel,
+                color: DesignColors.primaryText
             )
             attributedString.drawCentered(at: labelCenter)
         }
@@ -90,16 +228,15 @@ final class CircularMacrosChartView: UIView {
             height: ChartConfiguration.CenterRect.height
         ), cornerRadius: ChartConfiguration.CenterRect.cornerRadius)
         
-        DesignSystem.Colors.centerRect.setFill()
+        DesignColors.centerRect.setFill()
         rectPath.lineWidth = ChartConfiguration.CenterRect.borderWidth
         rectPath.stroke()
         rectPath.fill()
         
-        // Калории
         let calString = NSAttributedString.create(
             text: "\(calories)",
-            font: DesignSystem.Fonts.chartLargeValue,
-            color: DesignSystem.Colors.primaryText
+            font: DesignFonts.chartLargeValue,
+            color: DesignColors.primaryText
         )
         let calSize = calString.size()
         calString.draw(at: CGPoint(
@@ -107,11 +244,10 @@ final class CircularMacrosChartView: UIView {
             y: center.y + ChartConfiguration.CenterRect.caloriesYOffset
         ))
         
-        // "ККал"
         let kcalString = NSAttributedString.create(
             text: "ККал",
-            font: DesignSystem.Fonts.chartSubtitle,
-            color: DesignSystem.Colors.primaryText
+            font: DesignFonts.chartSubtitle,
+            color: DesignColors.primaryText
         )
         let kcalSize = kcalString.size()
         kcalString.draw(at: CGPoint(
@@ -124,47 +260,48 @@ final class CircularMacrosChartView: UIView {
         guard let ctx = UIGraphicsGetCurrentContext() else { return }
         
         let macroData: [(value: Int, name: String, color: UIColor)] = [
-            (carbs, "углеводы", DesignSystem.Colors.macroBlue),
-            (proteins, "белки", DesignSystem.Colors.macroRed),
-            (fats, "жиры", DesignSystem.Colors.macroGreen)
+            (carbs, "углеводы", DesignColors.macroBlue),
+            (proteins, "белки", DesignColors.macroRed),
+            (fats, "жиры", DesignColors.macroGreen)
         ]
         
         let y = rect.maxY - ChartConfiguration.MacroLabels.bottomOffset
         let columnWidth = ChartConfiguration.MacroLabels.totalWidth / CGFloat(macroData.count)
         let startX = center.x - ChartConfiguration.MacroLabels.totalWidth / 2
+
+        let padding = ChartConfiguration.MacroLabels.horizontalPadding
+        let availableWidth = max(0, columnWidth - 2 * padding)
         
         for (index, macro) in macroData.enumerated() {
             let columnX = startX + CGFloat(index) * columnWidth
+            let contentX = columnX + padding
             
-            // Значение макроса
             let valueString = NSAttributedString.create(
                 text: "\(macro.value) г",
-                font: DesignSystem.Fonts.macroLabel,
+                font: DesignFonts.macroLabel,
                 color: macro.color
             )
             let valueSize = valueString.size()
             valueString.draw(at: CGPoint(
-                x: columnX + (columnWidth - valueSize.width) / 2,
+                x: contentX + (availableWidth - valueSize.width) / 2,
                 y: y + ChartConfiguration.MacroLabels.valueYOffset
             ))
             
-            // Название макроса
             let nameString = NSAttributedString.create(
                 text: macro.name,
-                font: DesignSystem.Fonts.macroLabel,
-                color: DesignSystem.Colors.primaryText
+                font: DesignFonts.macroLabel,
+                color: DesignColors.primaryText
             )
             let nameSize = nameString.size()
             nameString.draw(at: CGPoint(
-                x: columnX + (columnWidth - nameSize.width) / 2,
+                x: contentX + (availableWidth - nameSize.width) / 2,
                 y: y + ChartConfiguration.MacroLabels.nameYOffset
             ))
             
-            // Разделитель
             if index < macroData.count - 1 {
                 drawSeparator(
                     context: ctx,
-                    x: columnX + columnWidth,
+                    x: columnX + columnWidth + ChartConfiguration.MacroLabels.separatorInset,
                     y1: y + ChartConfiguration.MacroLabels.separatorTopOffset,
                     y2: y + ChartConfiguration.MacroLabels.height
                 )
@@ -173,37 +310,11 @@ final class CircularMacrosChartView: UIView {
     }
     
     private func drawSeparator(context: CGContext, x: CGFloat, y1: CGFloat, y2: CGFloat) {
-        context.setStrokeColor(UIColor.black.cgColor)
+        context.setStrokeColor(DesignColors.divider.cgColor)
         context.setLineWidth(1)
         context.move(to: CGPoint(x: x, y: y1))
         context.addLine(to: CGPoint(x: x, y: y2))
         context.strokePath()
-    }
-}
-
-// MARK: - NSAttributedString Helpers
-extension NSAttributedString {
-    static func create(text: String, font: UIFont, color: UIColor) -> NSAttributedString {
-        NSAttributedString(string: text, attributes: [
-            .font: font,
-            .foregroundColor: color
-        ])
-    }
-    
-    func drawCentered(in rect: CGRect) {
-        let size = self.size()
-        draw(at: CGPoint(
-            x: rect.midX - size.width / 2,
-            y: rect.midY - size.height / 2
-        ))
-    }
-    
-    func drawCentered(at point: CGPoint) {
-        let size = self.size()
-        draw(at: CGPoint(
-            x: point.x - size.width / 2,
-            y: point.y - size.height / 2
-        ))
     }
 }
 

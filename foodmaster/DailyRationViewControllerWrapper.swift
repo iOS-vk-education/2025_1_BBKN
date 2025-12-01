@@ -6,7 +6,6 @@ struct DailyRationViewControllerWrapper: UIViewControllerRepresentable {
     }
 
     func updateUIViewController(_ uiViewController: DailyRationViewController, context: Context) {
-        // Ничего обновлять не требуется
     }
 }
 

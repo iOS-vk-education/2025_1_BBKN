@@ -12,9 +12,9 @@ struct ChartConfiguration {
     struct Macro {
         static let offsetFromMain: [CGFloat] = [43, 49, 55]
         static let colors: [UIColor] = [
-            DesignSystem.Colors.macroRed,
-            DesignSystem.Colors.macroGreen,
-            DesignSystem.Colors.macroBlue
+            DesignColors.macroRed,
+            DesignColors.macroGreen,
+            DesignColors.macroBlue
         ]
     }
 
@@ -23,8 +23,16 @@ struct ChartConfiguration {
         static let scaleSteps = 4
 
         static func scaleValues(for goal: Int) -> [Int] {
-            let step = goal / (scaleSteps - 1)
-            return (0..<scaleSteps).map { $0 * step }
+            guard scaleSteps > 1, goal >= 0 else { return [0] }
+            let step = CGFloat(goal) / CGFloat(scaleSteps - 1)
+            var values: [Int] = []
+            for i in 0..<(scaleSteps - 1) {
+                let v = Int(round(step * CGFloat(i)))
+                values.append(v)
+            }
+            // последний элемент принудительно равен цели
+            values.append(goal)
+            return values
         }
     }
 
@@ -44,6 +52,11 @@ struct ChartConfiguration {
         static let valueYOffset: CGFloat = 0
         static let nameYOffset: CGFloat = 20
         static let separatorTopOffset: CGFloat = 3
+
+        // Новый: внутренний отступ текста от границ колонки
+        static let horizontalPadding: CGFloat = 8
+        // Новый: небольшой сдвиг вертикальной линии внутрь (чтобы текст не лип)
+        static let separatorInset: CGFloat = 2
     }
 }
 
