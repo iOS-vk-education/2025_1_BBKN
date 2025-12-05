@@ -14,18 +14,15 @@ struct DishDetailsView: View {
     
     var body: some View {
         ZStack(alignment: .topLeading) {
-            // Зелёный фон на весь экран
-            Color.theme.primary
+            Color.customPrimary
                 .ignoresSafeArea()
             
-            // Карточка на весь экран
-            RoundedRectangle(cornerRadius: 40, style: .continuous)
-                .fill(Color.theme.cardBackground)
+            RoundedRectangle(cornerRadius: Constants.cardCornerRadius, style: .continuous)
+                .fill(Color.customCardBackground)
                 .ignoresSafeArea(edges: .bottom)
                 .overlay(cardContent, alignment: .top)
-                .padding(.top, 8)
+                .padding(.top, Constants.cardTopPadding)
             
-            // Кнопка "назад" в левом верхнем углу картинки
             backButton
         }
         .navigationBarHidden(true)
@@ -34,30 +31,33 @@ struct DishDetailsView: View {
     // MARK: - Back Button
     private var backButton: some View {
         Button(action: { dismiss() }) {
-            Image(systemName: "arrow.left")
-                .font(.system(size: 20, weight: .medium))
-                .foregroundColor(Color.theme.primary)
-                .frame(width: 44, height: 44)
-                .background(Color.theme.cardBackground)
+            Image(systemName: Constants.backButtonImageName)
+                .font(.system(size: Constants.backButtonFontSize, weight: Constants.backButtonFontWeight))
+                .foregroundColor(Color.customPrimary)
+                .frame(width: Constants.backButtonSize, height: Constants.backButtonSize)
+                .background(Color.customCardBackground)
                 .clipShape(Circle())
-                .shadow(color: Color.black.opacity(0.08), radius: 4, x: 0, y: 2)
+                .shadow(
+                    color: Color.black.opacity(Constants.backButtonShadowOpacity),
+                    radius: Constants.backButtonShadowRadius,
+                    x: Constants.backButtonShadowX,
+                    y: Constants.backButtonShadowY
+                )
         }
-        .padding(.leading, 24)
-        .padding(.top, 32)
+        .padding(.leading, Constants.backButtonLeadingPadding)
+        .padding(.top, Constants.backButtonTopPadding)
     }
     
     // MARK: - Card Content
     private var cardContent: some View {
         ScrollView {
-            VStack(spacing: 0) {
+            VStack(spacing: Constants.cardContentSpacing) {
                 Spacer()
-                    .frame(height: 12)
+                    .frame(height: Constants.cardContentTopSpacing)
                 
-                // Картинка блюда
                 dishImageView
-                    .padding(.horizontal, 12)
+                    .padding(.horizontal, Constants.dishImageHorizontalPadding)
                 
-                // Текстовая часть
                 infoSectionContent
             }
             .frame(maxWidth: .infinity, alignment: .top)
@@ -86,149 +86,181 @@ struct DishDetailsView: View {
                 placeholderImage
             }
         }
-        .frame(height: 300)
-        .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+        .frame(height: Constants.dishImageHeight)
+        .clipShape(RoundedRectangle(cornerRadius: Constants.dishImageCornerRadius, style: .continuous))
     }
     
     private var placeholderImage: some View {
         Rectangle()
-            .fill(Color.gray.opacity(0.2))
+            .fill(Color.gray.opacity(Constants.placeholderImageOpacity))
             .overlay(
-                Image(systemName: "photo")
-                    .font(.system(size: 50))
-                    .foregroundColor(.gray.opacity(0.5))
+                Image(systemName: Constants.placeholderImageName)
+                    .font(.system(size: Constants.placeholderImageSize))
+                    .foregroundColor(.gray.opacity(Constants.placeholderImageIconOpacity))
             )
     }
     
     // MARK: - Info Section Content
     private var infoSectionContent: some View {
-        VStack(spacing: 0) {
-            // Название
+        VStack(spacing: Constants.infoSectionSpacing) {
             Text(dish.name)
-                .font(.system(size: 22, weight: .bold))
-                .foregroundColor(Color.theme.text)
-                .padding(.top, 20)
+                .font(.system(size: Constants.dishNameFontSize, weight: Constants.dishNameFontWeight))
+                .foregroundColor(Color.customText)
+                .padding(.top, Constants.dishNameTopPadding)
             
-            // Подзаголовок
             if let subtitle = dish.subtitle {
                 Text(subtitle)
-                    .font(.system(size: 14))
-                    .foregroundColor(Color.theme.textSecondary)
-                    .padding(.top, 8)
+                    .font(.system(size: Constants.subtitleFontSize))
+                    .foregroundColor(Color.customTextSecondary)
+                    .padding(.top, Constants.subtitleTopPadding)
             }
             
-            // Заголовок "На 100 г"
-            Text("На 100 г")
-                .font(.system(size: 12, weight: .semibold))
-                .foregroundColor(Color.theme.textSecondary)
-                .padding(.top, 16)
+            Text(Constants.nutritionHeaderText)
+                .font(.system(size: Constants.nutritionHeaderFontSize, weight: Constants.nutritionHeaderFontWeight))
+                .foregroundColor(Color.customTextSecondary)
+                .padding(.top, Constants.nutritionHeaderTopPadding)
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.horizontal, 20)
+                .padding(.horizontal, Constants.nutritionHeaderHorizontalPadding)
             
-            // Пищевая ценность
             nutritionalInfoView
-                .padding(.top, 8)
-                .padding(.bottom, 12)
+                .padding(.top, Constants.nutritionalInfoTopPadding)
+                .padding(.bottom, Constants.nutritionalInfoBottomPadding)
             
-            // Описание
             Text(dish.description)
-                .font(.system(size: 15))
-                .foregroundColor(Color.theme.text)
+                .font(.system(size: Constants.descriptionFontSize))
+                .foregroundColor(Color.customText)
                 .multilineTextAlignment(.leading)
-                .lineSpacing(4)
-                .padding(.horizontal, 20)
-                .padding(.top, 12)
-                .padding(.bottom, 100)
+                .lineSpacing(Constants.descriptionLineSpacing)
+                .padding(.horizontal, Constants.descriptionHorizontalPadding)
+                .padding(.top, Constants.descriptionTopPadding)
+                .padding(.bottom, Constants.descriptionBottomPadding)
         }
         .frame(maxWidth: .infinity, alignment: .top)
     }
     
     // MARK: - Nutritional Info
     private var nutritionalInfoView: some View {
-        HStack(spacing: 0) {
-            NutritionItem(value: dish.calories, unit: "ккал", showUnit: true, label: nil)
+        HStack(spacing: Constants.nutritionalInfoSpacing) {
+            NutritionItem(value: dish.calories, unit: .kcal, label: nil)
             Spacer()
 
-            NutritionItem(value: dish.fat, unit: "г", showUnit: true, label: "жира")
+            NutritionItem(value: dish.fat, unit: .gram, label: Constants.fatLabel)
             Spacer()
 
-            NutritionItem(value: dish.carbs, unit: "г", showUnit: true, label: "углеводов")
+            NutritionItem(value: dish.carbs, unit: .gram, label: Constants.carbsLabel)
             Spacer()
 
-            NutritionItem(value: dish.protein, unit: "г", showUnit: true, label: "белка")
+            NutritionItem(value: dish.protein, unit: .gram, label: Constants.proteinLabel)
         }
-        .padding(.horizontal, 20)
+        .padding(.horizontal, Constants.nutritionalInfoHorizontalPadding)
     }
 }
 
 // MARK: - Nutrition Item Component
 struct NutritionItem: View {
     let value: Int
-    let unit: String
-    let showUnit: Bool
+    let unit: Unit
     let label: String?
     
     var body: some View {
-        VStack(spacing: 2) {
-            // Число с единицей справа (для Б/Ж/У) или только число (для калорий)
-            if unit == "ккал" {
+        VStack(spacing: Constants.nutritionItemSpacing) {
+            if unit == .kcal {
                 Text("\(value)")
-                    .font(.system(size: 18, weight: .bold))
-                    .foregroundColor(Color.theme.text)
+                    .font(.system(size: Constants.nutritionValueFontSize, weight: Constants.nutritionValueFontWeight))
+                    .foregroundColor(Color.customText)
                 
-                Text(unit)
-                    .font(.system(size: 13))
-                    .foregroundColor(Color.theme.textSecondary)
+                Text(unit.description)
+                    .font(.system(size: Constants.nutritionKcalUnitFontSize))
+                    .foregroundColor(Color.customTextSecondary)
             } else {
-                HStack(alignment: .firstTextBaseline, spacing: 2) {
+                HStack(alignment: .firstTextBaseline, spacing: Constants.nutritionGramUnitSpacing) {
                     Text("\(value)")
-                        .font(.system(size: 18, weight: .bold))
-                        .foregroundColor(Color.theme.text)
+                        .font(.system(size: Constants.nutritionValueFontSize, weight: Constants.nutritionValueFontWeight))
+                        .foregroundColor(Color.customText)
                     
-                    Text(unit)
-                        .font(.system(size: 18, weight: .bold))
-                        .foregroundColor(Color.theme.text)
+                    Text(unit.description)
+                        .font(.system(size: Constants.nutritionValueFontSize, weight: Constants.nutritionValueFontWeight))
+                        .foregroundColor(Color.customText)
                 }
             }
             
             if let label = label {
                 Text(label)
-                    .font(.system(size: 11))
-                    .foregroundColor(Color.theme.textSecondary)
+                    .font(.system(size: Constants.nutritionLabelFontSize))
+                    .foregroundColor(Color.customTextSecondary)
             }
         }
     }
 }
 
-// MARK: - Model + Mocks
-struct Dish: Identifiable, Codable {
-    let id: String
-    let name: String
-    let subtitle: String?
-    let description: String
-    let imageUrl: String?
-    let calories: Int
-    let protein: Int
-    let carbs: Int
-    let fat: Int
-    let price: Double
-    let category: String?
+// MARK: - Constants
+private extension DishDetailsView {
+    enum Constants {
+        static let cardCornerRadius: CGFloat = 40
+        static let cardTopPadding: CGFloat = 8
+        static let cardContentSpacing: CGFloat = 0
+        static let cardContentTopSpacing: CGFloat = 12
+        
+        static let backButtonImageName: String = "arrow.left"
+        static let backButtonFontSize: CGFloat = 20
+        static let backButtonFontWeight: Font.Weight = .medium
+        static let backButtonSize: CGFloat = 44
+        static let backButtonShadowOpacity: CGFloat = 0.08
+        static let backButtonShadowRadius: CGFloat = 4
+        static let backButtonShadowX: CGFloat = 0
+        static let backButtonShadowY: CGFloat = 2
+        static let backButtonLeadingPadding: CGFloat = 24
+        static let backButtonTopPadding: CGFloat = 32
+        
+        static let dishImageHorizontalPadding: CGFloat = 12
+        static let dishImageHeight: CGFloat = 300
+        static let dishImageCornerRadius: CGFloat = 24
+        
+        static let placeholderImageOpacity: CGFloat = 0.2
+        static let placeholderImageName: String = "photo"
+        static let placeholderImageSize: CGFloat = 50
+        static let placeholderImageIconOpacity: CGFloat = 0.5
+        
+        static let infoSectionSpacing: CGFloat = 0
+        static let dishNameFontSize: CGFloat = 22
+        static let dishNameFontWeight: Font.Weight = .bold
+        static let dishNameTopPadding: CGFloat = 20
+        
+        static let subtitleFontSize: CGFloat = 14
+        static let subtitleTopPadding: CGFloat = 8
+        
+        static let nutritionHeaderText: String = "На 100 г"
+        static let nutritionHeaderFontSize: CGFloat = 12
+        static let nutritionHeaderFontWeight: Font.Weight = .semibold
+        static let nutritionHeaderTopPadding: CGFloat = 16
+        static let nutritionHeaderHorizontalPadding: CGFloat = 20
+        
+        static let nutritionalInfoSpacing: CGFloat = 0
+        static let nutritionalInfoTopPadding: CGFloat = 8
+        static let nutritionalInfoBottomPadding: CGFloat = 12
+        static let nutritionalInfoHorizontalPadding: CGFloat = 20
+        
+        static let fatLabel: String = "жира"
+        static let carbsLabel: String = "углеводов"
+        static let proteinLabel: String = "белка"
+        
+        static let descriptionFontSize: CGFloat = 15
+        static let descriptionLineSpacing: CGFloat = 4
+        static let descriptionHorizontalPadding: CGFloat = 20
+        static let descriptionTopPadding: CGFloat = 12
+        static let descriptionBottomPadding: CGFloat = 100
+    }
 }
 
-extension Dish {
-    static let mock = Dish(
-        id: "1",
-        name: "Рис отварной",
-        subtitle: "Отборный рис помогает потенциалу",
-        description: "Отборный рис помогает потенциалу. род однолетних и многолетних травянистых растений семейства Злаки. Рис. Oryza sativa.",
-        imageUrl: nil,
-        calories: 1000,
-        protein: 152,
-        carbs: 150,
-        fat: 145,
-        price: 250,
-        category: "Гарниры"
-    )
+private extension NutritionItem {
+    enum Constants {
+        static let nutritionItemSpacing: CGFloat = 2
+        static let nutritionValueFontSize: CGFloat = 18
+        static let nutritionValueFontWeight: Font.Weight = .bold
+        static let nutritionKcalUnitFontSize: CGFloat = 13
+        static let nutritionGramUnitSpacing: CGFloat = 2
+        static let nutritionLabelFontSize: CGFloat = 11
+    }
 }
 
 #Preview {
