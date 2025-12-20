@@ -1,6 +1,6 @@
 import Foundation
 
-struct SearchViewDish: Identifiable {
+struct SearchViewDishModel: Identifiable {
     let id = UUID()
     let title: String
     let subtitle: String
