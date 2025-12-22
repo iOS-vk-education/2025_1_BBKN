@@ -5,6 +5,7 @@ struct FoodMasterApp: App {
     var body: some Scene {
         WindowGroup {
             DailyRationViewControllerWrapperContainer()
+            //CustomDishView()
         }
     }
 }
